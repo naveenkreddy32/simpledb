@@ -19,9 +19,9 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
     <flow name="simpletransactionFlow2">
         <vm:inbound-endpoint exchange-pattern="request-response" path="VmQ1" connector-ref="VM" doc:name="VM">
         </vm:inbound-endpoint>
-        <db:select config-ref="MySQL_Configuration" doc:name="Database"  target="#[payload]" fetchSize="10">
-            <db:parameterized-query><![CDATA[select * from tutorials_tbl where tutorial_author = #[message.inboundProperties.Name];]]></db:parameterized-query>
-        </db:select>
+        <db:insert config-ref="MySQL_Configuration" doc:name="Database"  target="#[payload]" >
+            <db:parameterized-query><![CDATA[INSERT INTO tutorials_tbl (tutorial_title, tutorial_author, submission_date) values (#[message.inboundProperties.title], #[message.inboundProperties.author], NOW());]]></db:parameterized-query>
+        </db:insert>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
         <logger message="Result set #[message.payload]" level="INFO" doc:name="Logger"/>
     </flow>
@@ -30,6 +30,8 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
         <logger message="Sent Message to JMS Q in Flow1 #[message.payloadAs(java.lang.String)] and Message Id is #[message.id]" level="INFO" doc:name="Logger"/>
         <message-properties-transformer doc:name="Message Properties">
             <add-message-property key="Name" value="#[message.inboundProperties['http.query.params'].Name]"/>
+            <add-message-property key="title" value="#[message.inboundProperties['http.query.params'].title]"/>
+            <add-message-property key="author" value="#[message.inboundProperties['http.query.params'].author]"/>
         </message-properties-transformer>
         <vm:outbound-endpoint exchange-pattern="request-response" path="VmQ1" connector-ref="VM" doc:name="VM">
         </vm:outbound-endpoint>
