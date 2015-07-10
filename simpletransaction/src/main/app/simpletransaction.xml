@@ -15,12 +15,13 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
     <http:listener-config name="HTTP_Listener_Configuration" host="localhost" port="8081" doc:name="HTTP Listener Configuration"/>
     <vm:connector name="VM" validateConnections="true" doc:name="VM"/>
-    <db:mysql-config name="MySQL_Configuration" host="localhost" port="3311" user="root" password="root" database="tutorials" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration" host="localhost" port="3311" user="root" password="root" database="tutorialdb" doc:name="MySQL Configuration"/>
     <flow name="simpletransactionFlow2">
         <vm:inbound-endpoint exchange-pattern="request-response" path="VmQ1" connector-ref="VM" doc:name="VM">
         </vm:inbound-endpoint>
         <db:insert config-ref="MySQL_Configuration" doc:name="Database"  target="#[payload]" >
             <db:parameterized-query><![CDATA[INSERT INTO tutorials_tbl (tutorial_title, tutorial_author, submission_date) values (#[message.inboundProperties.title], #[message.inboundProperties.author], NOW());]]></db:parameterized-query>
+
         </db:insert>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
         <logger message="Result set #[message.payload]" level="INFO" doc:name="Logger"/>
